@@ -101,7 +101,7 @@ def random_selection_neighbor(operations, threshold, tabu_list, dim_tabu_list):
             tabu_list.pop(0)
         return best_candidate, False, best_makespan
 
-    print("Tutte le 3 mosse generate erano Tabu")
+    print("Tutte le 5 mosse generate erano Tabu")
     return operations, True, float('inf')
 
 
@@ -116,16 +116,18 @@ def add_set_to_elite(elite_set, operations, new_makespan):
 
 def update_freq(freq_matrix, operations):
     for pos, op in enumerate(operations):
+        #aggiungi un al valore presente, se non è presente restituisci 0 di default
         freq_matrix[(op.name, pos)] = freq_matrix.get((op.name, pos), 0) + 1
 
 
 def build_diversified_solution(operations, freq_matrix):
+    available = operations.copy()
+    rd.shuffle(available)  # spareggio casuale
     new_solution = []
-    available_ops = operations.copy()
-    rd.shuffle(available_ops)  # spareggio casuale
     for pos in range(len(operations)):
-        available_ops.sort(key=lambda op: freq_matrix.get((op.name, pos), 0))
-        new_solution.append(available_ops.pop(0))
+        op = min(available, key=lambda o: freq_matrix.get((o.name, pos), 0))
+        available.remove(op)
+        new_solution.append(op)
     return new_solution
 
 
@@ -138,7 +140,7 @@ def main(seed):
     current_value = calculate_makespan(operations)
     num_iteration = 1  # la valutazione iniziale conta
     tabu_list, elite_set, freq = [], [], {}
-    dim_tabu_list = 7
+    dim_tabu_list = 5
     counter_no_increment = 0
     iteration_final = 1
     add_set_to_elite(elite_set, operations, current_value)
@@ -163,18 +165,18 @@ def main(seed):
             add_set_to_elite(elite_set, operations, new_makespan)
 
         # intensificazione, se ho 15 iterazioni senza incrementi
-        if counter_no_increment == 35:
+        if counter_no_increment == 30:
             dim_tabu_list = 12
             tabu_list.clear()
             operations = rd.choice(elite_set)[1].copy()
 
         # diversificazione
-        if counter_no_increment >= 50 and num_iteration + 1 <= MAX_EVAL:
+        if counter_no_increment >= 60 and num_iteration + 1 <= MAX_EVAL:
             operations = build_diversified_solution(operations, freq)
             calculate_makespan(operations)  # costa 1 valutazione
             num_iteration += 1
             tabu_list.clear()
-            dim_tabu_list = 7
+            dim_tabu_list = 5
             counter_no_increment = 0
 
     print("\n--- RISULTATO FINALE ---")
@@ -193,11 +195,17 @@ def main(seed):
 if __name__ == "__main__":
     results = []
     evals = []
-    for s in [9, 787678768, 4324234, 34214234, 3565724]:
+    operations = []
+    seeds = [0, 2026, 432526, 22032004, 9876543]
+    for s in seeds:
         best, it_final = main(seed=s)
         results.append(best[0])
+        operations.append(best[1])
         evals.append(it_final)
     print("Makespan per run:", results)
     print("Media makespan:", sum(results) / len(results))
     print("Ultima iterazione con miglioramento per run:", evals)
     print("Media ultima iterazione con miglioramento:", sum(evals) / len(evals))
+    print("Soluzioni trovate per le run:")
+    for i in range(5):
+        print(f"{operations[i]} seed - {seeds[i]}")
