@@ -4,7 +4,7 @@ Progetto di Laboratorio di Intelligenza Artificiale.
 ## Requisiti
 - Python 3.9 o superiore
 - matplotlib
-
+ 
 ## Installazione
 python3 -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
@@ -16,7 +16,7 @@ python3 tabu_search.py
 Lo script esegue 5 run con i seed 0, 17, 12423, 3, 865, stampa i risultati
 e salva il grafico di convergenza del seed 17 in grafico1.png.
 Per chiudere il grafico cliccare 'q'.
-In output i risultati di ogni seed e del loro complesso.
+In output i risultati di ogni seed e del loro complesso .
 
 ## Opzioni
 - Per provare 1000 seed casuali: commentare `seeds = [...]` e
